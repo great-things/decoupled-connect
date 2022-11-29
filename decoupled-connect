@@ -23,3 +23,36 @@ secondProcess.stdout.pipe(firstProcess.stdin);
 //Show errors
 firstProcess.stderr.pipe(process.stderr);
 secondProcess.stderr.pipe(process.stderr);
+
+
+
+//Notice if a connected process is done and provide debug information; when both processes are done, we quit this script so it does never keep running unnecessarily
+var processCount = 2; //We have two processes. This variable will be decremented when a process exits
+
+//This function is called when a process exits
+function processClosed() {
+    processCount--;
+    
+    //Provide debug info - this block of code can be removed without altering the basic functionality
+    //TODO: make it so the user can disable this output if it is not wanted
+    console.log("decoupled-connect: process count has been reduced to " + processCount);
+    console.log("The two connected processes and their exit codes are:");
+    console.log(firstProcess.spawnargs);
+    console.log(firstProcess.exitCode);
+    console.log(secondProcess.spawnargs);
+    console.log(secondProcess.exitCode);
+    console.log("------");
+    
+    //Decide if we have to terminate the script manually
+    if(processCount == 0) {
+        console.log("decoupled-connect: The process count is zero - the connect script should terminate automatically.");
+    } else if (firstProcess.exitCode !== null && secondProcess.exitCode !== null) {
+        console.log("decoupled-connect: The process count is not zero, but both processes are done already. Terminating the connect script manually. This might be caused by a bug in the script.");
+        process.exit(0);
+    }
+}
+
+firstProcess.on("close", processClosed)
+secondProcess.on("close", processClosed)
+firstProcess.on("error", processClosed)
+secondProcess.on("error", processClosed)
