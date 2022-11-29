@@ -15,5 +15,5 @@ decoupled-connect program1 program2
 
 For more complex commands:
 ```
-decoupled-connect connect.js 'program1 parameter' 'program2 something'
+decoupled-connect 'program1 parameter' 'program2 something'
 ```
